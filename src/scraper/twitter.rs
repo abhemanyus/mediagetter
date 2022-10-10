@@ -63,7 +63,10 @@ pub async fn scrape(url: &str) -> Result<Media, ScrapErr> {
         scraper: "twitter.json".to_string(),
     })?;
     let mut media_data = CLIENT.get(media_url).send().await?;
-    let path = temp_dir().join(Uuid::new_v4().to_string());
+    let mut path = temp_dir().join(Uuid::new_v4().to_string());
+    if matches!(media_type, Type::Video)  {
+        path.set_extension("mp4");
+    }
     let mut file = tokio::fs::File::create(&path).await?;
     while let Some(chunk) = media_data.chunk().await? {
         file.write(&chunk).await?;
@@ -97,12 +100,4 @@ struct Variant {
     #[serde(default)]
     bit_rate: u32,
     url: String,
-}
-
-#[derive(Deserialize, Debug)]
-enum ContentType {
-    #[serde(rename = "video/mp4")]
-    Video,
-    #[serde(rename = "application/x-mpegURL")]
-    Stream,
 }
