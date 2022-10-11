@@ -26,14 +26,14 @@ pub async fn scrape(url: &str) -> Result<Media, ScrapErr> {
         .domain()
         .ok_or(ScrapErr::NoHost(url.to_string()))?
     {
-        "danbooru.donmai.com" => danbooru::scrape(url).await,
+        "danbooru.donmai.us" => danbooru::scrape(url).await,
         "pixiv.net" | "www.pixiv.net" => pixiv::scrape(url).await,
-        "mobile.twitter.com" | "www.twitter.com" => twitter::scrape(url).await,
+        "mobile.twitter.com" | "www.twitter.com" | "twitter.com" => twitter::scrape(url).await,
         _ => generic::scrape(url).await,
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub enum Type {
     Image,
     Video,

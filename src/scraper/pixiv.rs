@@ -18,23 +18,26 @@ static CONTENT_SELECTOR: Lazy<Selector> =
     Lazy::new(|| Selector::parse("#meta-preload-data[content]").unwrap());
 
 pub async fn scrape(url: &str) -> Result<Media, ScrapErr> {
-    let html = CLIENT.get(url).send().await?.text().await?;
-    let html = Html::parse_document(&html);
-    let content = html
-        .select(&CONTENT_SELECTOR)
-        .next()
-        .ok_or(ScrapErr::HtmlScraping {
-            element: "metadata".to_string(),
-            scraper: "pixiv".to_string(),
-        })?;
-    let content = content
-        .value()
-        .attr("content")
-        .ok_or(ScrapErr::HtmlScraping {
-            element: "metadata.content".to_string(),
-            scraper: "pixiv".to_string(),
-        })?;
-    let content: Content = serde_json::from_str(content)?;
+    let content = {
+        let html = CLIENT.get(url).send().await?.text().await?;
+        let html = Html::parse_document(&html);
+        let content = html
+            .select(&CONTENT_SELECTOR)
+            .next()
+            .ok_or(ScrapErr::HtmlScraping {
+                element: "metadata".to_string(),
+                scraper: "pixiv".to_string(),
+            })?;
+        let content = content
+            .value()
+            .attr("content")
+            .ok_or(ScrapErr::HtmlScraping {
+                element: "metadata.content".to_string(),
+                scraper: "pixiv".to_string(),
+            })?;
+        let content: Content = serde_json::from_str(content)?;
+        content
+    };
     let illust = content
         .illust
         .values()
