@@ -51,7 +51,7 @@ async fn url_handler(
             path.set_extension("png");
             let current = img.dimensions();
             if let Ok(exists) = image::image_dimensions(&path) {
-                if exists > current {
+                if exists >= current {
                     return Err(AppErr::BetterImage {
                         old: exists,
                         new: current,
